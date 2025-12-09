@@ -131,18 +131,11 @@
       transform: scale(1.1);
     }
     .hidden { display: none; }
-    .voice-mode {
+    .voice-mode, .image-mode {
       text-align: center;
       padding: 20px;
     }
-    .voice-mode p {
-      margin-bottom: 20px;
-    }
-    .image-mode {
-      text-align: center;
-      padding: 20px;
-    }
-    .image-mode p {
+    .voice-mode p, .image-mode p {
       margin-bottom: 20px;
     }
     .notification {
@@ -160,15 +153,9 @@
     .notification.show {
       transform: translateX(0);
     }
-    .notification.error {
-      background-color: var(--error);
-    }
-    .notification.success {
-      background-color: var(--success);
-    }
-    .notification.info {
-      background-color: var(--accent);
-    }
+    .notification.error { background-color: var(--error); }
+    .notification.success { background-color: var(--success); }
+    .notification.info { background-color: var(--accent); }
     .loader {
       border: 3px solid rgba(0, 246, 255, 0.2);
       border-radius: 50%;
@@ -179,10 +166,7 @@
       display: inline-block;
       margin-right: 10px;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .copy-btn {
       position: absolute;
       top: 10px;
@@ -216,9 +200,7 @@
       align-items: center;
       justify-content: center;
     }
-    .swap-btn:hover {
-      transform: rotate(180deg);
-    }
+    .swap-btn:hover { transform: rotate(180deg); }
     .preview-image {
       max-width: 100%;
       max-height: 200px;
@@ -301,7 +283,6 @@
     let currentMode = 'text';
     let isProcessing = false;
     
-    // Initialize event listeners
     document.addEventListener('DOMContentLoaded', () => {
       // Tab switching
       document.querySelectorAll('.tabs button').forEach(button => {
@@ -331,7 +312,6 @@
       // Translate button
       document.getElementById('translateBtn').addEventListener('click', translateText);
       
-      // Check browser compatibility
       checkCompatibility();
     });
     
@@ -342,7 +322,6 @@
       document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('mode-' + mode).classList.remove('hidden');
       
-      // Reset input when switching modes
       if (mode !== 'text') {
         document.getElementById('inputText').value = '';
       }
@@ -361,18 +340,15 @@
       const sourceLang = document.getElementById('sourceLang');
       const targetLang = document.getElementById('targetLang');
       
-      // Don't swap if "auto" is selected
       if (sourceLang.value === 'auto') {
         showNotification('No se puede intercambiar cuando está en "Detectar idioma"', 'error');
         return;
       }
       
-      // Swap values
       const temp = sourceLang.value;
       sourceLang.value = targetLang.value;
       targetLang.value = temp;
       
-      // Swap input and output text
       const inputText = getInputText();
       const outputText = document.getElementById('output').textContent;
       
@@ -423,8 +399,9 @@
         const sourceLang = document.getElementById('sourceLang').value;
         const targetLang = document.getElementById('targetLang').value;
         
-        // Using LibreTranslate API (free alternative)
-        const url = 'https://libretranslate.de/translate';
+        // *** CAMBIO CLAVE AQUÍ ***
+        // Usamos la URL oficial y estable de LibreTranslate
+        const url = 'https://libretranslate.org/translate';
         
         const res = await fetch(url, {
           method: 'POST',
@@ -437,21 +414,19 @@
           })
         });
         
-        if (!res.ok) throw new Error('Error en la traducción');
+        if (!res.ok) throw new Error(`Error en la API: ${res.status} ${res.statusText}`);
         
         const data = await res.json();
         
-        // Update output
         const outputElement = document.getElementById('output');
         outputElement.textContent = data.translatedText;
         
-        // Show copy button
         document.getElementById('copyBtn').classList.remove('hidden');
         
         showNotification('Traducción completada', 'success');
       } catch (error) {
         console.error('Translation error:', error);
-        showNotification('Error al traducir. Inténtalo de nuevo.', 'error');
+        showNotification('Error al traducir. Revisa la consola para más detalles.', 'error');
       } finally {
         isProcessing = false;
         document.getElementById('translateBtn').disabled = false;
@@ -470,7 +445,6 @@
       
       const recognition = new SpeechRecognition();
       
-      // Set language based on source language selection
       const sourceLang = document.getElementById('sourceLang').value;
       if (sourceLang === 'en' || sourceLang === 'auto') {
         recognition.lang = 'en-US';
@@ -515,7 +489,6 @@
       const file = event.target.files[0];
       if (!file) return;
       
-      // Show image preview
       const reader = new FileReader();
       reader.onload = (e) => {
         const preview = document.getElementById('imagePreview');
@@ -528,7 +501,6 @@
       document.getElementById('imageBtn').disabled = true;
       
       try {
-        // Detect language based on selection
         const sourceLang = document.getElementById('sourceLang').value;
         const languages = sourceLang === 'auto' ? 'eng+fra+spa' : 
                          sourceLang === 'en' ? 'eng' : 
@@ -545,7 +517,6 @@
         setInputText(recognizedText);
         showNotification('Texto reconocido correctamente', 'success');
         
-        // Auto-translate after recognizing text
         translateText();
       } catch (error) {
         console.error('OCR error:', error);
