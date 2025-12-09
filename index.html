@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>R2 Translate</title>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #00f6ff;
+      --text: #ffffff;
+      --sub: #a0a0c0;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0,246,255,.25);
+    }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+    .tabs button {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: .3s;
+    }
+    .tabs button.active,
+    .tabs button:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      border: none;
+      padding: 15px;
+      font-size: 16px;
+      resize: none;
+      background: #101020;
+      color: var(--text);
+    }
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    select, button {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      background: #101020;
+      padding: 15px;
+      border-radius: 10px;
+      min-height: 100px;
+      white-space: pre-wrap;
+    }
+    #fileInput { display: none; }
+    .icon-btn {
+      background: none;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 20px;
+      margin-left: 10px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>R2 Translate</h1>
+    <div class="tabs">
+      <button class="active" onclick="setMode('text')">Texto</button>
+      <button onclick="setMode('voice')">Voz</button>
+      <button onclick="setMode('image')">Imagen</button>
+    </div>
+
+    <!-- Texto -->
+    <div id="mode-text">
+      <textarea id="inputText" placeholder="Escribe aquí..."></textarea>
+    </div>
+
+    <!-- Voz -->
+    <div id="mode-voice" class="hidden">
+      <p style="text-align:center;">Presiona el micrófono y habla en inglés o francés</p>
+      <div style="text-align:center;">
+        <button class="icon-btn" onclick="startVoice()">🎤</button>
+      </div>
+    </div>
+
+    <!-- Imagen -->
+    <div id="mode-image" class="hidden">
+      <p style="text-align:center;">Sube una imagen con texto en inglés o francés</p>
+      <div style="text-align:center;">
+        <button class="icon-btn" onclick="document.getElementById('fileInput').click()">📷</button>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleImage(event)">
+      </div>
+    </div>
+
+    <div class="controls">
+      <select id="langSelect">
+        <option value="en">Inglés → Español</option>
+        <option value="fr">Francés → Español</option>
+        <option value="es">Español → Inglés</option>
+      </select>
+      <button onclick="translateText()">Traducir</button>
+    </div>
+
+    <h3>Traducción:</h3>
+    <div id="output"></div>
+  </div>
+
+  <!-- Librerías -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  <script>
+    let currentMode = 'text';
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('mode-' + mode).classList.remove('hidden');
+    }
+
+    function getInputText() {
+      if (currentMode === 'text') return document.getElementById('inputText').value;
+      if (currentMode === 'voice') return document.getElementById('inputText').value;
+      if (currentMode === 'image') return document.getElementById('inputText').value;
+      return '';
+    }
+
+    async function translateText() {
+      const text = getInputText();
+      if (!text) return alert('No hay texto para traducir');
+      const lang = document.getElementById('langSelect').value;
+      const target = lang === 'es' ? 'en' : 'es';
+      const res = await fetch('https://libretranslate.de/translate', {
+        method: 'POST',
+        body: JSON.stringify({ q: text, source: lang, target, format: 'text' }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      document.getElementById('output').textContent = data.translatedText;
+    }
+
+    function startVoice() {
+      if (!('webkitSpeechRecognition' in window)) return alert('Usa Chrome o Edge');
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.onresult = e => {
+        const transcript = e.results[0][0].transcript;
+        document.getElementById('inputText').value = transcript;
+        translateText();
+      };
+      recognition.start();
+    }
+
+    async function handleImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const result = await Tesseract.recognize(file, 'eng+fra');
+      document.getElementById('inputText').value = result.data.text;
+      translateText();
+    }
+  </script>
+</body>
+</html>
