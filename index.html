@@ -11,8 +11,13 @@
       --accent: #00f6ff;
       --text: #ffffff;
       --sub: #a0a0c0;
+      --error: #ff4757;
+      --success: #2ed573;
     }
-    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    * { 
+      box-sizing: border-box; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     body {
       margin: 0;
       background: var(--bg);
@@ -36,25 +41,29 @@
       margin-top: 0;
       color: var(--accent);
       letter-spacing: 2px;
+      font-size: 2rem;
     }
     .tabs {
       display: flex;
       justify-content: space-around;
       margin-bottom: 20px;
+      border-bottom: 1px solid rgba(160, 160, 192, 0.3);
+      padding-bottom: 10px;
     }
     .tabs button {
       background: transparent;
-      border: 2px solid var(--accent);
-      color: var(--accent);
+      border: none;
+      color: var(--sub);
       padding: 10px 20px;
       border-radius: 30px;
       cursor: pointer;
       transition: .3s;
+      font-weight: 600;
     }
     .tabs button.active,
     .tabs button:hover {
-      background: var(--accent);
-      color: var(--bg);
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
     }
     textarea {
       width: 100%;
@@ -72,6 +81,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     select, button {
       padding: 10px 15px;
@@ -81,6 +92,16 @@
       color: var(--bg);
       font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 246, 255, 0.3);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
     #output {
       margin-top: 20px;
@@ -89,6 +110,7 @@
       border-radius: 10px;
       min-height: 100px;
       white-space: pre-wrap;
+      position: relative;
     }
     #fileInput { display: none; }
     .icon-btn {
@@ -99,17 +121,119 @@
       border-radius: 50%;
       font-size: 20px;
       margin-left: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+    }
+    .icon-btn:hover {
+      transform: scale(1.1);
     }
     .hidden { display: none; }
+    .voice-mode {
+      text-align: center;
+      padding: 20px;
+    }
+    .voice-mode p {
+      margin-bottom: 20px;
+    }
+    .image-mode {
+      text-align: center;
+      padding: 20px;
+    }
+    .image-mode p {
+      margin-bottom: 20px;
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+    }
+    .notification.show {
+      transform: translateX(0);
+    }
+    .notification.error {
+      background-color: var(--error);
+    }
+    .notification.success {
+      background-color: var(--success);
+    }
+    .notification.info {
+      background-color: var(--accent);
+    }
+    .loader {
+      border: 3px solid rgba(0, 246, 255, 0.2);
+      border-radius: 50%;
+      border-top: 3px solid var(--accent);
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: 1px solid var(--sub);
+      color: var(--sub);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .lang-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .swap-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .swap-btn:hover {
+      transform: rotate(180deg);
+    }
+    .preview-image {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 15px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>R2 Translate</h1>
     <div class="tabs">
-      <button class="active" onclick="setMode('text')">Texto</button>
-      <button onclick="setMode('voice')">Voz</button>
-      <button onclick="setMode('image')">Imagen</button>
+      <button class="active" data-mode="text">Texto</button>
+      <button data-mode="voice">Voz</button>
+      <button data-mode="image">Imagen</button>
     </div>
 
     <!-- Texto -->
@@ -119,97 +243,325 @@
 
     <!-- Voz -->
     <div id="mode-voice" class="hidden">
-      <p style="text-align:center;">Presiona el micrófono y habla en inglés o francés</p>
-      <div style="text-align:center;">
-        <button class="icon-btn" onclick="startVoice()">🎤</button>
+      <div class="voice-mode">
+        <p>Presiona el micrófono y habla en inglés o francés</p>
+        <button class="icon-btn" id="voiceBtn">🎤</button>
+        <div id="voiceStatus" class="hidden" style="margin-top: 15px;">
+          <div class="loader"></div>
+          <span>Escuchando...</span>
+        </div>
       </div>
     </div>
 
     <!-- Imagen -->
     <div id="mode-image" class="hidden">
-      <p style="text-align:center;">Sube una imagen con texto en inglés o francés</p>
-      <div style="text-align:center;">
-        <button class="icon-btn" onclick="document.getElementById('fileInput').click()">📷</button>
-        <input type="file" id="fileInput" accept="image/*" onchange="handleImage(event)">
+      <div class="image-mode">
+        <p>Sube una imagen con texto en inglés o francés</p>
+        <button class="icon-btn" id="imageBtn">📷</button>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="imageStatus" class="hidden" style="margin-top: 15px;">
+          <div class="loader"></div>
+          <span>Procesando imagen...</span>
+        </div>
+        <div id="imagePreview"></div>
       </div>
     </div>
 
     <div class="controls">
-      <select id="langSelect">
-        <option value="en">Inglés → Español</option>
-        <option value="fr">Francés → Español</option>
-        <option value="es">Español → Inglés</option>
-      </select>
-      <button onclick="translateText()">Traducir</button>
+      <div class="lang-controls">
+        <select id="sourceLang">
+          <option value="auto">Detectar idioma</option>
+          <option value="en">Inglés</option>
+          <option value="fr">Francés</option>
+          <option value="es">Español</option>
+        </select>
+        <button class="swap-btn" id="swapBtn">⇄</button>
+        <select id="targetLang">
+          <option value="es">Español</option>
+          <option value="en">Inglés</option>
+          <option value="fr">Francés</option>
+        </select>
+      </div>
+      <button id="translateBtn">Traducir</button>
     </div>
 
     <h3>Traducción:</h3>
-    <div id="output"></div>
+    <div id="output">
+      <span style="color: var(--sub);">La traducción aparecerá aquí...</span>
+      <button class="copy-btn hidden" id="copyBtn">Copiar</button>
+    </div>
   </div>
+
+  <!-- Notification container -->
+  <div id="notification" class="notification"></div>
 
   <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
     let currentMode = 'text';
-
+    let isProcessing = false;
+    
+    // Initialize event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // Tab switching
+      document.querySelectorAll('.tabs button').forEach(button => {
+        button.addEventListener('click', () => {
+          const mode = button.getAttribute('data-mode');
+          setMode(mode);
+        });
+      });
+      
+      // Language swap
+      document.getElementById('swapBtn').addEventListener('click', swapLanguages);
+      
+      // Copy button
+      document.getElementById('copyBtn').addEventListener('click', copyTranslation);
+      
+      // Image button
+      document.getElementById('imageBtn').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+      });
+      
+      // File input
+      document.getElementById('fileInput').addEventListener('change', handleImage);
+      
+      // Voice button
+      document.getElementById('voiceBtn').addEventListener('click', startVoice);
+      
+      // Translate button
+      document.getElementById('translateBtn').addEventListener('click', translateText);
+      
+      // Check browser compatibility
+      checkCompatibility();
+    });
+    
     function setMode(mode) {
       currentMode = mode;
       document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
       document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('mode-' + mode).classList.remove('hidden');
+      
+      // Reset input when switching modes
+      if (mode !== 'text') {
+        document.getElementById('inputText').value = '';
+      }
     }
-
+    
     function getInputText() {
       if (currentMode === 'text') return document.getElementById('inputText').value;
-      if (currentMode === 'voice') return document.getElementById('inputText').value;
-      if (currentMode === 'image') return document.getElementById('inputText').value;
-      return '';
+      return document.getElementById('inputText').value;
     }
-
-async function translateText() {
-  const text = getInputText();
-  if (!text) return alert('No hay texto para traducir');
-
-  const lang = document.getElementById('langSelect').value;
-  const target = lang === 'es' ? 'en' : 'es';
-
-  const url = 'https://corsproxy.io/?' +
-              encodeURIComponent('https://lt.vern.cc/translate');
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      q: text,
-      source: lang,
-      target: target,
-      format: 'text'
-    })
-  });
-
-  const data = await res.json();
-  document.getElementById('output').textContent = data.translatedText;
-}
-
+    
+    function setInputText(text) {
+      document.getElementById('inputText').value = text;
+    }
+    
+    function swapLanguages() {
+      const sourceLang = document.getElementById('sourceLang');
+      const targetLang = document.getElementById('targetLang');
+      
+      // Don't swap if "auto" is selected
+      if (sourceLang.value === 'auto') {
+        showNotification('No se puede intercambiar cuando está en "Detectar idioma"', 'error');
+        return;
+      }
+      
+      // Swap values
+      const temp = sourceLang.value;
+      sourceLang.value = targetLang.value;
+      targetLang.value = temp;
+      
+      // Swap input and output text
+      const inputText = getInputText();
+      const outputText = document.getElementById('output').textContent;
+      
+      setInputText(outputText);
+      document.getElementById('output').textContent = inputText;
+    }
+    
+    function showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+    
+    function showLoader(elementId) {
+      document.getElementById(elementId).classList.remove('hidden');
+    }
+    
+    function hideLoader(elementId) {
+      document.getElementById(elementId).classList.add('hidden');
+    }
+    
+    function checkCompatibility() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        document.getElementById('voiceBtn').disabled = true;
+        showNotification('El reconocimiento de voz no es compatible con tu navegador. Usa Chrome o Edge.', 'error');
+      }
+    }
+    
+    async function translateText() {
+      if (isProcessing) return;
+      
+      const text = getInputText();
+      if (!text) {
+        showNotification('No hay texto para traducir', 'error');
+        return;
+      }
+      
+      isProcessing = true;
+      document.getElementById('translateBtn').disabled = true;
+      document.getElementById('translateBtn').innerHTML = '<div class="loader"></div>Traduciendo...';
+      
+      try {
+        const sourceLang = document.getElementById('sourceLang').value;
+        const targetLang = document.getElementById('targetLang').value;
+        
+        // Using LibreTranslate API (free alternative)
+        const url = 'https://libretranslate.de/translate';
+        
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            q: text,
+            source: sourceLang === 'auto' ? 'auto' : sourceLang,
+            target: targetLang,
+            format: 'text'
+          })
+        });
+        
+        if (!res.ok) throw new Error('Error en la traducción');
+        
+        const data = await res.json();
+        
+        // Update output
+        const outputElement = document.getElementById('output');
+        outputElement.textContent = data.translatedText;
+        
+        // Show copy button
+        document.getElementById('copyBtn').classList.remove('hidden');
+        
+        showNotification('Traducción completada', 'success');
+      } catch (error) {
+        console.error('Translation error:', error);
+        showNotification('Error al traducir. Inténtalo de nuevo.', 'error');
+      } finally {
+        isProcessing = false;
+        document.getElementById('translateBtn').disabled = false;
+        document.getElementById('translateBtn').innerHTML = 'Traducir';
+      }
+    }
+    
     function startVoice() {
-      if (!('webkitSpeechRecognition' in window)) return alert('Usa Chrome o Edge');
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = 'en-US';
-      recognition.onresult = e => {
-        const transcript = e.results[0][0].transcript;
-        document.getElementById('inputText').value = transcript;
-        translateText();
+      if (isProcessing) return;
+      
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showNotification('El reconocimiento de voz no es compatible con tu navegador', 'error');
+        return;
+      }
+      
+      const recognition = new SpeechRecognition();
+      
+      // Set language based on source language selection
+      const sourceLang = document.getElementById('sourceLang').value;
+      if (sourceLang === 'en' || sourceLang === 'auto') {
+        recognition.lang = 'en-US';
+      } else if (sourceLang === 'fr') {
+        recognition.lang = 'fr-FR';
+      } else {
+        recognition.lang = 'es-ES';
+      }
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      
+      recognition.onstart = () => {
+        isProcessing = true;
+        showLoader('voiceStatus');
+        document.getElementById('voiceBtn').disabled = true;
       };
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText(transcript);
+        showNotification('Texto reconocido correctamente', 'success');
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        showNotification(`Error de reconocimiento: ${event.error}`, 'error');
+      };
+      
+      recognition.onend = () => {
+        isProcessing = false;
+        hideLoader('voiceStatus');
+        document.getElementById('voiceBtn').disabled = false;
+      };
+      
       recognition.start();
     }
-
-    async function handleImage(e) {
-      const file = e.target.files[0];
+    
+    async function handleImage(event) {
+      if (isProcessing) return;
+      
+      const file = event.target.files[0];
       if (!file) return;
-      const result = await Tesseract.recognize(file, 'eng+fra');
-      document.getElementById('inputText').value = result.data.text;
-      translateText();
+      
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`;
+      };
+      reader.readAsDataURL(file);
+      
+      isProcessing = true;
+      showLoader('imageStatus');
+      document.getElementById('imageBtn').disabled = true;
+      
+      try {
+        // Detect language based on selection
+        const sourceLang = document.getElementById('sourceLang').value;
+        const languages = sourceLang === 'auto' ? 'eng+fra+spa' : 
+                         sourceLang === 'en' ? 'eng' : 
+                         sourceLang === 'fr' ? 'fra' : 'spa';
+        
+        const result = await Tesseract.recognize(file, languages);
+        const recognizedText = result.data.text.trim();
+        
+        if (!recognizedText) {
+          showNotification('No se encontró texto en la imagen', 'error');
+          return;
+        }
+        
+        setInputText(recognizedText);
+        showNotification('Texto reconocido correctamente', 'success');
+        
+        // Auto-translate after recognizing text
+        translateText();
+      } catch (error) {
+        console.error('OCR error:', error);
+        showNotification('Error al procesar la imagen', 'error');
+      } finally {
+        isProcessing = false;
+        hideLoader('imageStatus');
+        document.getElementById('imageBtn').disabled = false;
+      }
+    }
+    
+    function copyTranslation() {
+      const text = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => showNotification('Texto copiado al portapapeles', 'success'))
+        .catch(() => showNotification('Error al copiar el texto', 'error'));
     }
   </script>
 </body>
