@@ -172,7 +172,7 @@
       if (!text) return alert('No hay texto para traducir');
       const lang = document.getElementById('langSelect').value;
       const target = lang === 'es' ? 'en' : 'es';
-      const res = await fetch('https://translate.argosopentech.com/translate', {
+      const res = await fetch('https://trans.zillyhuhn.com/translate', {
         method: 'POST',
         body: JSON.stringify({ q: text, source: lang, target, format: 'text' }),
         headers: { 'Content-Type': 'application/json' }
