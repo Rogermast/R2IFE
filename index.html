@@ -167,15 +167,14 @@
       return '';
     }
 
- async function translateText() {
+async function translateText() {
   const text = getInputText();
   if (!text) return alert('No hay texto para traducir');
 
   const lang = document.getElementById('langSelect').value;
   const target = lang === 'es' ? 'en' : 'es';
 
-  // Proxy CORS + LibreTranslate
-  const url = 'https://api.allorigins.win/raw?url=' +
+  const url = 'https://corsproxy.io/?' +
               encodeURIComponent('https://translate.fortytwoit.com/translate');
 
   const res = await fetch(url, {
