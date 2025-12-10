@@ -284,7 +284,6 @@
     let isProcessing = false;
     
     document.addEventListener('DOMContentLoaded', () => {
-      // Tab switching
       document.querySelectorAll('.tabs button').forEach(button => {
         button.addEventListener('click', () => {
           const mode = button.getAttribute('data-mode');
@@ -292,24 +291,13 @@
         });
       });
       
-      // Language swap
       document.getElementById('swapBtn').addEventListener('click', swapLanguages);
-      
-      // Copy button
       document.getElementById('copyBtn').addEventListener('click', copyTranslation);
-      
-      // Image button
       document.getElementById('imageBtn').addEventListener('click', () => {
         document.getElementById('fileInput').click();
       });
-      
-      // File input
       document.getElementById('fileInput').addEventListener('change', handleImage);
-      
-      // Voice button
       document.getElementById('voiceBtn').addEventListener('click', startVoice);
-      
-      // Translate button
       document.getElementById('translateBtn').addEventListener('click', translateText);
       
       checkCompatibility();
@@ -328,7 +316,6 @@
     }
     
     function getInputText() {
-      if (currentMode === 'text') return document.getElementById('inputText').value;
       return document.getElementById('inputText').value;
     }
     
@@ -350,10 +337,10 @@
       targetLang.value = temp;
       
       const inputText = getInputText();
-      const outputText = document.getElementById('output').textContent;
+      const outputText = document.getElementById('output').textContent.replace('Copiar', '').trim();
       
       setInputText(outputText);
-      document.getElementById('output').textContent = inputText;
+      document.getElementById('output').innerHTML = `<span style="color: var(--sub);">La traducción aparecerá aquí...</span><button class="copy-btn hidden" id="copyBtn">Copiar</button>`;
     }
     
     function showNotification(message, type = 'info') {
@@ -399,9 +386,11 @@
         const sourceLang = document.getElementById('sourceLang').value;
         const targetLang = document.getElementById('targetLang').value;
         
-        // *** CAMBIO CLAVE AQUÍ ***
-        // Usamos la URL oficial y estable de LibreTranslate
-        const url = 'https://libretranslate.org/translate';
+        // *** SOLUCIÓN CLAVE: USAR UN PROXY CORS ***
+        // Esto evita errores de red y de política CORS del navegador.
+        const proxyUrl = 'https://corsproxy.io/?';
+        const targetUrl = 'https://libretranslate.org/translate';
+        const url = proxyUrl + encodeURIComponent(targetUrl);
         
         const res = await fetch(url, {
           method: 'POST',
@@ -419,14 +408,14 @@
         const data = await res.json();
         
         const outputElement = document.getElementById('output');
-        outputElement.textContent = data.translatedText;
+        outputElement.innerHTML = `${data.translatedText}<button class="copy-btn" id="copyBtn">Copiar</button>`;
         
-        document.getElementById('copyBtn').classList.remove('hidden');
+        document.getElementById('copyBtn').addEventListener('click', copyTranslation);
         
         showNotification('Traducción completada', 'success');
       } catch (error) {
         console.error('Translation error:', error);
-        showNotification('Error al traducir. Revisa la consola para más detalles.', 'error');
+        showNotification('Error al traducir. El servicio podría no estar disponible.', 'error');
       } finally {
         isProcessing = false;
         document.getElementById('translateBtn').disabled = false;
@@ -529,7 +518,7 @@
     }
     
     function copyTranslation() {
-      const text = document.getElementById('output').textContent;
+      const text = document.getElementById('output').textContent.replace('Copiar', '').trim();
       navigator.clipboard.writeText(text)
         .then(() => showNotification('Texto copiado al portapapeles', 'success'))
         .catch(() => showNotification('Error al copiar el texto', 'error'));
