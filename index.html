@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>R2 Translate (Móvil)</title>
+  <title>R2 Translate</title>
   <style>
     :root {
       --bg: #0f0f1a;
@@ -11,13 +11,8 @@
       --accent: #00f6ff;
       --text: #ffffff;
       --sub: #a0a0c0;
-      --error: #ff4757;
-      --success: #2ed573;
     }
-    * { 
-      box-sizing: border-box; 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
     body {
       margin: 0;
       background: var(--bg);
@@ -26,45 +21,40 @@
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      padding: 20px 10px;
+      padding: 40px 20px;
     }
     .container {
       width: 100%;
       max-width: 600px;
       background: var(--card);
       border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 0 20px rgba(0,246,255,.25);
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0,246,255,0.25);
     }
     h1 {
       text-align: center;
       margin-top: 0;
       color: var(--accent);
       letter-spacing: 2px;
-      font-size: 1.8rem;
     }
     .tabs {
       display: flex;
       justify-content: space-around;
       margin-bottom: 20px;
-      border-bottom: 1px solid rgba(160, 160, 192, 0.3);
-      padding-bottom: 10px;
     }
     .tabs button {
       background: transparent;
-      border: none;
-      color: var(--sub);
-      padding: 8px 15px;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 10px 20px;
       border-radius: 30px;
       cursor: pointer;
-      transition: .3s;
-      font-weight: 600;
-      font-size: 0.9rem;
+      transition: 0.3s;
     }
     .tabs button.active,
     .tabs button:hover {
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent);
+      background: var(--accent);
+      color: var(--bg);
     }
     textarea {
       width: 100%;
@@ -82,8 +72,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
     }
     select, button {
       padding: 10px 15px;
@@ -93,16 +81,6 @@
       color: var(--bg);
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 246, 255, 0.3);
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
     }
     #output {
       margin-top: 20px;
@@ -111,7 +89,7 @@
       border-radius: 10px;
       min-height: 100px;
       white-space: pre-wrap;
-      position: relative;
+      color: var(--text);
     }
     #fileInput { display: none; }
     .icon-btn {
@@ -122,101 +100,18 @@
       border-radius: 50%;
       font-size: 20px;
       margin-left: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 50px;
-      height: 50px;
-    }
-    .icon-btn:hover {
-      transform: scale(1.1);
     }
     .hidden { display: none; }
-    .voice-mode, .image-mode {
-      text-align: center;
-      padding: 20px;
-    }
-    .voice-mode p, .image-mode p {
-      margin-bottom: 20px;
-    }
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 20px;
-      border-radius: 10px;
-      color: white;
-      font-weight: 500;
-      z-index: 1000;
-      transform: translateX(150%);
-      transition: transform 0.3s ease;
-    }
-    .notification.show {
-      transform: translateX(0);
-    }
-    .notification.error { background-color: var(--error); }
-    .notification.success { background-color: var(--success); }
-    .notification.info { background-color: var(--accent); }
-    .loader {
-      border: 3px solid rgba(0, 246, 255, 0.2);
-      border-radius: 50%;
-      border-top: 3px solid var(--accent);
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-right: 10px;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      border: 1px solid var(--sub);
-      color: var(--sub);
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 12px;
-    }
-    .copy-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .lang-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .swap-btn {
-      background: transparent;
-      border: none;
-      color: var(--accent);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .swap-btn:hover { transform: rotate(180deg); }
-    .preview-image {
-      max-width: 100%;
-      max-height: 200px;
-      margin-top: 15px;
-      border-radius: 10px;
-    }
+    .error { color: #ff5555; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>R2 Translate</h1>
     <div class="tabs">
-      <button class="active" data-mode="text">Texto</button>
-      <button data-mode="voice">Voz</button>
-      <button data-mode="image">Imagen</button>
+      <button class="active" onclick="setMode('text')">Texto</button>
+      <button onclick="setMode('voice')">Voz</button>
+      <button onclick="setMode('image')">Imagen</button>
     </div>
 
     <!-- Texto -->
@@ -226,222 +121,158 @@
 
     <!-- Voz -->
     <div id="mode-voice" class="hidden">
-      <div class="voice-mode">
-        <p>Presiona el micrófono y habla</p>
-        <button class="icon-btn" id="voiceBtn">🎤</button>
-        <div id="voiceStatus" class="hidden" style="margin-top: 15px;">
-          <div class="loader"></div>
-          <span>Escuchando...</span>
-        </div>
+      <p style="text-align:center;">Presiona el micrófono y habla</p>
+      <div style="text-align:center;">
+        <button class="icon-btn" onclick="startVoice()">🎤</button>
       </div>
     </div>
 
     <!-- Imagen -->
     <div id="mode-image" class="hidden">
-      <div class="image-mode">
-        <p>Sube una imagen con texto</p>
-        <button class="icon-btn" id="imageBtn">📷</button>
-        <input type="file" id="fileInput" accept="image/*">
-        <div id="imageStatus" class="hidden" style="margin-top: 15px;">
-          <div class="loader"></div>
-          <span>Procesando imagen...</span>
-        </div>
-        <div id="imagePreview"></div>
+      <p style="text-align:center;">Sube una imagen con texto</p>
+      <div style="text-align:center;">
+        <button class="icon-btn" onclick="document.getElementById('fileInput').click()">📷</button>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleImage(event)">
       </div>
     </div>
 
     <div class="controls">
-      <div class="lang-controls">
-        <select id="sourceLang">
-          <option value="en">Inglés</option>
-          <option value="fr">Francés</option>
-          <option value="es">Español</option>
-        </select>
-        <button class="swap-btn" id="swapBtn">⇄</button>
-        <select id="targetLang">
-          <option value="es">Español</option>
-          <option value="en">Inglés</option>
-          <option value="fr">Francés</option>
-        </select>
-      </div>
-      <button id="translateBtn">Traducir</button>
+      <select id="langSelect">
+        <option value="en">Inglés → Español</option>
+        <option value="fr">Francés → Español</option>
+        <option value="es">Español → Inglés</option>
+      </select>
+      <button onclick="translateText()">Traducir</button>
     </div>
 
     <h3>Traducción:</h3>
-    <div id="output">
-      <span style="color: var(--sub);">La traducción aparecerá aquí...</span>
-    </div>
+    <div id="output"></div>
   </div>
-
-  <!-- Notification container -->
-  <div id="notification" class="notification"></div>
 
   <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
-    // =================================================================
-    // === DICCIONARIO INTEGRADO DIRECTAMENTE EN EL CÓDIGO ===
-    // =================================================================
-    const dictionary = {
-      "en_to_es": {
-        "a": "un", "about": "acerca de", "above": "sobre", "after": "después", "again": "de nuevo", "against": "contra", "all": "todo", "am": "soy", "an": "un", "and": "y", "any": "algún", "are": "eres/son", "as": "como", "at": "en", "be": "ser/estar", "because": "porque", "been": "estado", "before": "antes", "being": "siendo", "below": "debajo", "between": "entre", "both": "ambos", "but": "pero", "by": "por", "can": "poder", "did": "hiciste", "do": "hacer", "does": "hace", "doing": "haciendo", "down": "abajo", "during": "durante", "each": "cada", "few": "pocos", "for": "para", "from": "de", "had": "tuvo", "has": "tiene", "have": "tener", "having": "teniendo", "he": "él", "her": "ella/su", "here": "aquí", "hers": "suyo (de ella)", "him": "él", "his": "su (de él)", "how": "cómo", "i": "yo", "if": "si", "in": "en", "into": "dentro de", "is": "es", "it": "ello/eso", "its": "su (de ello)", "just": "justo/sólo", "me": "mí", "more": "más", "most": "más", "much": "mucho", "must": "deber", "my": "mi", "mine": "mío", "no": "no", "nor": "ni", "not": "no", "now": "ahora", "of": "de", "off": "apagado", "on": "encendido/en", "once": "una vez", "only": "sólo", "or": "o", "other": "otro", "our": "nuestro", "ours": "nuestro", "out": "fuera", "over": "sobre", "own": "propio", "same": "mismo", "she": "ella", "should": "debería", "so": "así/entonces", "some": "algún", "such": "tal", "than": "que", "that": "ese/eso", "the": "el/la/los/las", "their": "su (de ellos)", "theirs": "suyo (de ellos)", "them": "ellos/les", "then": "entonces", "there": "allí", "these": "estos", "they": "ellos", "this": "este", "those": "aquellos", "through": "a través de", "to": "a", "too": "también", "under": "bajo", "up": "arriba", "very": "muy", "was": "era/fue", "we": "nosotros", "were": "éramos/fuimos", "what": "qué", "when": "cuándo", "where": "dónde", "which": "cuál", "while": "mientras", "who": "quién", "whom": "a quién", "why": "por qué", "will": "voluntad/futuro", "with": "con", "you": "tú/ustedes", "your": "tu/su", "yours": "tuyo/suyo", "hello": "hola", "goodbye": "adiós", "please": "por favor", "thank you": "gracias", "yes": "sí", "no": "no", "i don't understand": "no entiendo", "help": "ayuda", "food": "comida", "water": "agua", "house": "casa", "friend": "amigo", "family": "familia", "love": "amor", "peace": "paz", "war": "guerra", "computer": "computadora", "code": "código", "error": "error", "success": "éxito", "problem": "problema", "solution": "solución", "open": "abrir", "close": "cerrar", "read": "leer", "write": "escribir", "translate": "traducir", "language": "idioma", "good morning": "buenos días", "good night": "buenas noches", "how are you": "cómo estás", "what is your name": "cómo te llamas", "where is the bathroom": "dónde está el baño", "can you help me": "puedes ayudarme", "how much does it cost": "cuánto cuesta", "today": "hoy", "tomorrow": "mañana", "yesterday": "ayer", "time": "tiempo", "day": "día", "night": "noche", "sun": "sol", "moon": "luna", "star": "estrella", "book": "libro", "work": "trabajo", "car": "coche", "street": "calle", "city": "ciudad", "country": "país", "money": "dinero", "happy": "feliz", "sad": "triste", "big": "grande", "small": "pequeño", "hot": "caliente", "cold": "frío", "new": "nuevo", "old": "viejo", "good": "bueno", "bad": "malo", "easy": "fácil", "difficult": "difícil", "right": "derecho/correcto", "left": "izquierda", "near": "cerca", "far": "lejos", "fast": "rápido", "slow": "lento", "always": "siempre", "never": "nunca", "sometimes": "a veces", "think": "pensar", "know": "saber", "want": "querer", "need": "necesitar", "go": "ir", "come": "venir", "see": "ver", "look": "mirar", "listen": "escuchar", "speak": "hablar", "tell": "decir", "give": "dar", "take": "tomar", "put": "poner", "get": "conseguir", "make": "hacer", "find": "encontrar", "try": "intentar"
-      },
-      "fr_to_es": {
-        "bonjour": "hola", "au revoir": "adiós", "s'il vous plaît": "por favor", "merci": "gracias", "oui": "sí", "non": "no", "je ne comprends pas": "no entiendo", "aide": "ayuda", "nourriture": "comida", "eau": "agua", "maison": "casa", "ami": "amigo", "famille": "familia", "amour": "amor", "paix": "paz", "guerre": "guerra", "ordinateur": "ordenador", "code": "código", "erreur": "error", "succès": "éxito", "problème": "problema", "solution": "solución", "ouvrir": "abrir", "fermer": "cerrar", "lire": "leer", "écrire": "escribir", "traduire": "traducir", "langue": "idioma", "bonne nuit": "buenas noches", "comment allez-vous": "cómo estás", "quel est ton nom": "cómo te llamas", "où sont les toilettes": "dónde está el baño", "pouvez-vous m'aider": "puedes ayudarme", "c'est combien": "cuánto cuesta", "aujourd'hui": "hoy", "demain": "mañana", "hier": "ayer", "temps": "tiempo", "jour": "día", "nuit": "noche", "soleil": "sol", "lune": "luna", "étoile": "estrella", "livre": "libro", "travail": "trabajo", "voiture": "coche", "rue": "calle", "ville": "ciudad", "pays": "país", "argent": "dinero", "heureux": "feliz", "triste": "triste", "grand": "grande", "petit": "pequeño", "chaud": "caliente", "froid": "frío", "nouveau": "nuevo", "vieux": "viejo", "bon": "bueno", "mauvais": "malo", "facile": "fácil", "difficile": "difícil", "droite": "derecha", "gauche": "izquierda", "près": "cerca", "loin": "lejos", "rapide": "rápido", "lent": "lento", "toujours": "siempre", "jamais": "nunca", "parfois": "a veces", "penser": "pensar", "savoir": "saber", "vouloir": "querer", "besoin": "necesitar", "aller": "ir", "venir": "venir", "voir": "ver", "regarder": "mirar", "écouter": "escuchar", "parler": "hablar", "dire": "decir", "donner": "dar", "prendre": "tomar", "mettre": "poner", "obtenir": "conseguir", "faire": "hacer", "trouver": "encontrar", "essayer": "intentar"
-      },
-      "es_to_en": {
-        "hola": "hello", "adiós": "goodbye", "por favor": "please", "gracias": "thank you", "sí": "yes", "no": "no", "no entiendo": "i don't understand", "ayuda": "help", "comida": "food", "agua": "water", "casa": "house", "amigo": "friend", "familia": "family", "amor": "love", "paz": "peace", "guerra": "war", "computadora": "computer", "código": "code", "error": "error", "éxito": "success", "problema": "problem", "solución": "solution", "abrir": "open", "cerrar": "close", "leer": "read", "escribir": "write", "traducir": "translate", "idioma": "language", "buenos días": "good morning", "buenas noches": "good night", "cómo estás": "how are you", "cómo te llamas": "what is your name", "dónde está el baño": "where is the bathroom", "puedes ayudarme": "can you help me", "cuánto cuesta": "how much does it cost", "hoy": "today", "mañana": "tomorrow", "ayer": "yesterday", "tiempo": "time", "día": "day", "noche": "night", "sol": "sun", "luna": "moon", "estrella": "star", "libro": "book", "trabajo": "work", "coche": "car", "calle": "street", "ciudad": "city", "país": "country", "dinero": "money", "feliz": "happy", "triste": "sad", "grande": "big", "pequeño": "small", "caliente": "hot", "frío": "cold", "nuevo": "new", "viejo": "old", "bueno": "good", "malo": "bad", "fácil": "easy", "difícil": "difficult", "derecho/correcto": "right", "izquierda": "left", "cerca": "near", "lejos": "far", "rápido": "fast", "lento": "slow", "siempre": "always", "nunca": "never", "a veces": "sometimes", "pensar": "think", "saber": "know", "querer": "want", "necesitar": "need", "ir": "go", "venir": "come", "ver": "see", "mirar": "look", "escuchar": "listen", "hablar": "speak", "decir": "tell", "dar": "give", "tomar": "take", "poner": "put", "conseguir": "get", "hacer": "make", "encontrar": "find", "intentar": "try"
-      },
-      "es_to_fr": {
-        "hola": "bonjour", "adiós": "au revoir", "por favor": "s'il vous plaît", "gracias": "merci", "sí": "oui", "no": "non", "no entiendo": "je ne comprends pas", "ayuda": "aide", "comida": "nourriture", "agua": "eau", "casa": "maison", "amigo": "ami", "familia": "famille", "amor": "amour", "paz": "paix", "guerra": "guerre", "computadora": "ordinateur", "código": "code", "error": "erreur", "éxito": "succès", "problema": "problème", "solución": "solution", "abrir": "ouvrir", "cerrar": "fermer", "leer": "lire", "escribir": "écrire", "traducir": "traduire", "idioma": "langue", "buenos días": "bonjour", "buenas noches": "bonne nuit", "cómo estás": "comment allez-vous", "cómo te llamas": "quel est ton nom", "dónde está el baño": "où sont les toilettes", "puedes ayudarme": "pouvez-vous m'aider", "cuánto cuesta": "c'est combien", "hoy": "aujourd'hui", "mañana": "demain", "ayer": "hier", "tiempo": "temps", "día": "jour", "noche": "nuit", "sol": "soleil", "luna": "lune", "estrella": "étoile", "libro": "livre", "trabajo": "travail", "coche": "voiture", "calle": "rue", "ciudad": "ville", "país": "pays", "dinero": "argent", "feliz": "heureux", "triste": "triste", "grande": "grand", "pequeño": "petit", "caliente": "chaud", "frío": "froid", "nuevo": "nouveau", "viejo": "vieux", "bueno": "bon", "malo": "mauvais", "fácil": "facile", "difícil": "difficile", "derecha": "droite", "izquierda": "gauche", "cerca": "près", "lejos": "loin", "rápido": "rapide", "lento": "lent", "siempre": "toujours", "nunca": "jamais", "a veces": "parfois", "pensar": "penser", "saber": "savoir", "querer": "vouloir", "necesitar": "avoir besoin de", "ir": "aller", "venir": "venir", "ver": "voir", "mirar": "regarder", "escuchar": "écouter", "hablar": "parler", "decir": "dire", "dar": "donner", "tomar": "prendre", "poner": "mettre", "conseguir": "obtenir", "hacer": "faire", "encontrar": "trouver", "intentar": "essayer"
-      }
-    };
-    // =================================================================
-
-
-    // === LÓGICA DE LA APLICACIÓN (SIN CAMBIOS) ===
-    let isProcessing = false;
     let currentMode = 'text';
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.tabs button').forEach(button => {
-        button.addEventListener('click', () => setMode(button.getAttribute('data-mode')));
-      });
-      document.getElementById('swapBtn').addEventListener('click', swapLanguages);
-      document.getElementById('output').addEventListener('click', (event) => {
-        if (event.target.id === 'copyBtn') copyTranslation();
-      });
-      document.getElementById('imageBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-      document.getElementById('fileInput').addEventListener('change', handleImage);
-      document.getElementById('voiceBtn').addEventListener('click', startVoice);
-      document.getElementById('translateBtn').addEventListener('click', translateText);
-      checkCompatibility();
-    });
-    
+
     function setMode(mode) {
       currentMode = mode;
+      // Actualizar botones activos
       document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-      document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+      event.target.classList.add('active');
+      // Mostrar/ocultar modos
       document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('mode-' + mode).classList.remove('hidden');
-      if (mode !== 'text') document.getElementById('inputText').value = '';
-    }
-    
-    function getInputText() { return document.getElementById('inputText').value; }
-    function setInputText(text) { document.getElementById('inputText').value = text; }
-    
-    function swapLanguages() {
-      const sourceLang = document.getElementById('sourceLang');
-      const targetLang = document.getElementById('targetLang');
-      const temp = sourceLang.value;
-      sourceLang.value = targetLang.value;
-      targetLang.value = temp;
-      const inputText = getInputText();
-      const outputText = document.getElementById('output').textContent.replace('Copiar', '').trim();
-      setInputText(outputText);
-      document.getElementById('output').innerHTML = `<span style="color: var(--sub);">La traducción aparecerá aquí...</span>`;
-    }
-    
-    function showNotification(message, type = 'info') {
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = `notification ${type} show`;
-      setTimeout(() => notification.classList.remove('show'), 3000);
-    }
-    
-    function showLoader(elementId) { document.getElementById(elementId).classList.remove('hidden'); }
-    function hideLoader(elementId) { document.getElementById(elementId).classList.add('hidden'); }
-    
-    function checkCompatibility() {
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        document.getElementById('voiceBtn').disabled = true;
-        showNotification('Reconocimiento de voz no compatible.', 'error');
-      }
+      // Limpiar campo de entrada
+      document.getElementById('inputText').value = '';
+      document.getElementById('output').textContent = '';
     }
 
-    function translateText() {
-      if (isProcessing) return;
+    function getInputText() {
+      return document.getElementById('inputText').value.trim();
+    }
+
+    async function translateText() {
+      const outputDiv = document.getElementById('output');
       const text = getInputText();
-      if (!text) return showNotification('No hay texto para traducir', 'error');
-
-      isProcessing = true;
-      document.getElementById('translateBtn').disabled = true;
-      document.getElementById('translateBtn').innerHTML = '<div class="loader"></div>Traduciendo...';
-
-      const sourceLang = document.getElementById('sourceLang').value;
-      const targetLang = document.getElementById('targetLang').value;
-      
-      const dictKey = `${sourceLang}_to_${targetLang}`;
-      const currentDict = dictionary[dictKey];
-
-      if (!currentDict) {
-        showNotification(`Traducción de ${sourceLang} a ${targetLang} no configurada.`, 'error');
-        isProcessing = false;
-        document.getElementById('translateBtn').disabled = false;
-        document.getElementById('translateBtn').innerHTML = 'Traducir';
+      if (!text) {
+        outputDiv.innerHTML = '<span class="error">⚠️ No hay texto para traducir.</span>';
         return;
       }
-      
-      const words = text.toLowerCase().split(/\s+/);
-      const translatedWords = words.map(word => {
-        const cleanWord = word.replace(/[.,!?;:]/g, '');
-        const translation = currentDict[cleanWord];
-        return translation || word;
-      });
-      
-      const translatedText = translatedWords.join(' ');
-      
-      const outputElement = document.getElementById('output');
-      outputElement.innerHTML = `${translatedText}<button class="copy-btn" id="copyBtn">Copiar</button>`;
-      
-      showNotification('Traducción completada', 'success');
-      
-      isProcessing = false;
-      document.getElementById('translateBtn').disabled = false;
-      document.getElementById('translateBtn').innerHTML = 'Traducir';
+
+      const langSelect = document.getElementById('langSelect');
+      const lang = langSelect.value;
+      let source, target;
+
+      // Determinar idiomas de origen y destino
+      if (lang === 'es') {
+        source = 'es';
+        target = 'en';
+      } else if (lang === 'en') {
+        source = 'en';
+        target = 'es';
+      } else if (lang === 'fr') {
+        source = 'fr';
+        target = 'es';
+      }
+
+      outputDiv.textContent = 'Traduciendo...';
+
+      try {
+        const proxy = 'https://corsproxy.io/?';
+        const api = 'https://libretranslate.com/translate';
+        const url = proxy + encodeURIComponent(api);
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: text, source: source, target: target })
+        });
+
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        if (data.translatedText === undefined) {
+          throw new Error('La API no devolvió una traducción válida.');
+        }
+
+        outputDiv.textContent = data.translatedText;
+      } catch (err) {
+        console.error(err);
+        outputDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
     }
 
     function startVoice() {
-      if (isProcessing) return;
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return showNotification('Reconocimiento de voz no compatible', 'error');
-      
-      const recognition = new SpeechRecognition();
-      const sourceLang = document.getElementById('sourceLang').value;
-      recognition.lang = sourceLang === 'en' ? 'en-US' : sourceLang === 'fr' ? 'fr-FR' : 'es-ES';
-      recognition.continuous = false; recognition.interimResults = false;
-      
-      recognition.onstart = () => { isProcessing = true; showLoader('voiceStatus'); document.getElementById('voiceBtn').disabled = true; };
-      recognition.onresult = (event) => { setInputText(event.results[0][0].transcript); showNotification('Texto reconocido', 'success'); };
-      recognition.onerror = (event) => { showNotification(`Error de reconocimiento: ${event.error}`, 'error'); };
-      recognition.onend = () => { isProcessing = false; hideLoader('voiceStatus'); document.getElementById('voiceBtn').disabled = false; };
+      const langMap = { en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+      const selectedLang = document.getElementById('langSelect').value;
+      const speechLang = langMap[selectedLang] || 'en-US';
+
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('El reconocimiento de voz solo funciona en Chrome o Edge.');
+        return;
+      }
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = speechLang;
+      recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        document.getElementById('inputText').value = transcript;
+      };
+      recognition.onerror = (e) => {
+        document.getElementById('output').innerHTML = '<span class="error">Error en reconocimiento de voz.</span>';
+      };
       recognition.start();
     }
-    
-    async function handleImage(event) {
-      if (isProcessing) return;
-      const file = event.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => { document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`; };
-      reader.readAsDataURL(file);
-      
-      isProcessing = true; showLoader('imageStatus'); document.getElementById('imageBtn').disabled = true;
+
+    async function handleImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const lang = document.getElementById('langSelect').value;
+      let tesseractLang = 'eng';
+      if (lang === 'fr') tesseractLang = 'fra';
+      if (lang === 'es') tesseractLang = 'spa';
+
+      const outputDiv = document.getElementById('output');
+      outputDiv.textContent = 'Leyendo imagen...';
+
       try {
-        const sourceLang = document.getElementById('sourceLang').value;
-        const languages = sourceLang === 'en' ? 'eng' : sourceLang === 'fr' ? 'fra' : 'spa';
-        const result = await Tesseract.recognize(file, languages);
-        const recognizedText = result.data.text.trim();
-        if (!recognizedText) { showNotification('No se encontró texto en la imagen', 'error'); return; }
-        setInputText(recognizedText);
-        showNotification('Texto reconocido correctamente', 'success');
-        await translateText();
-      } catch (error) { console.error('OCR error:', error); showNotification('Error al procesar la imagen', 'error'); }
-      finally { isProcessing = false; hideLoader('imageStatus'); document.getElementById('imageBtn').disabled = false; }
-    }
-    
-    function copyTranslation() {
-      const textToCopy = document.getElementById('output').childNodes[0].textContent.trim();
-      navigator.clipboard.writeText(textToCopy).then(() => showNotification('Texto copiado', 'success')).catch(() => showNotification('Error al copiar', 'error'));
+        const result = await Tesseract.recognize(file, tesseractLang, {
+          logger: () => {} // opcional: para no mostrar logs en consola
+        });
+        const text = result.data.text.trim();
+        if (!text) {
+          outputDiv.innerHTML = '<span class="error">⚠️ No se detectó texto en la imagen.</span>';
+          return;
+        }
+        document.getElementById('inputText').value = text;
+        outputDiv.textContent = 'Texto extraído. Haz clic en "Traducir".';
+      } catch (err) {
+        console.error(err);
+        outputDiv.innerHTML = `<span class="error">❌ Error OCR: ${err.message}</span>`;
+      }
     }
   </script>
 </body>
