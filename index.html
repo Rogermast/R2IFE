@@ -102,7 +102,7 @@
       margin-left: 10px;
     }
     .hidden { display: none; }
-    .error { color: #ff5555; }
+    .error { color: #ff6b6b; }
   </style>
 </head>
 <body>
@@ -156,13 +156,10 @@
 
     function setMode(mode) {
       currentMode = mode;
-      // Actualizar botones activos
       document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
       event.target.classList.add('active');
-      // Mostrar/ocultar modos
       document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById('mode-' + mode).classList.remove('hidden');
-      // Limpiar campo de entrada
       document.getElementById('inputText').value = '';
       document.getElementById('output').textContent = '';
     }
@@ -173,17 +170,19 @@
 
     async function translateText() {
       const outputDiv = document.getElementById('output');
-      const text = getInputText();
+      let text = getInputText();
+
       if (!text) {
         outputDiv.innerHTML = '<span class="error">⚠️ No hay texto para traducir.</span>';
         return;
       }
 
-      const langSelect = document.getElementById('langSelect');
-      const lang = langSelect.value;
+      // Limitar longitud para evitar errores de API
+      if (text.length > 4000) text = text.substring(0, 4000);
+
+      const lang = document.getElementById('langSelect').value;
       let source, target;
 
-      // Determinar idiomas de origen y destino
       if (lang === 'es') {
         source = 'es';
         target = 'en';
@@ -198,9 +197,9 @@
       outputDiv.textContent = 'Traduciendo...';
 
       try {
-        const proxy = 'https://corsproxy.io/?';
-        const api = 'https://libretranslate.com/translate';
-        const url = proxy + encodeURIComponent(api);
+        const proxyUrl = 'https://corsproxy.io/?';
+        const apiUrl = 'https://libretranslate.com/translate';
+        const url = proxyUrl + encodeURIComponent(apiUrl);
 
         const res = await fetch(url, {
           method: 'POST',
@@ -209,15 +208,17 @@
         });
 
         if (!res.ok) {
-          throw new Error(`Error ${res.status}: ${res.statusText}`);
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
         }
 
         const data = await res.json();
         if (data.translatedText === undefined) {
-          throw new Error('La API no devolvió una traducción válida.');
+          throw new Error('La respuesta no contiene "translatedText"');
         }
 
         outputDiv.textContent = data.translatedText;
+
       } catch (err) {
         console.error(err);
         outputDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
@@ -240,7 +241,7 @@
         const transcript = e.results[0][0].transcript;
         document.getElementById('inputText').value = transcript;
       };
-      recognition.onerror = (e) => {
+      recognition.onerror = () => {
         document.getElementById('output').innerHTML = '<span class="error">Error en reconocimiento de voz.</span>';
       };
       recognition.start();
@@ -251,16 +252,15 @@
       if (!file) return;
 
       const lang = document.getElementById('langSelect').value;
-      let tesseractLang = 'eng';
-      if (lang === 'fr') tesseractLang = 'fra';
-      if (lang === 'es') tesseractLang = 'spa';
+      const langMap = { en: 'eng', fr: 'fra', es: 'spa' };
+      const tesseractLang = langMap[lang] || 'eng';
 
       const outputDiv = document.getElementById('output');
-      outputDiv.textContent = 'Leyendo imagen...';
+      outputDiv.textContent = 'Analizando imagen...';
 
       try {
         const result = await Tesseract.recognize(file, tesseractLang, {
-          logger: () => {} // opcional: para no mostrar logs en consola
+          logger: () => {}
         });
         const text = result.data.text.trim();
         if (!text) {
