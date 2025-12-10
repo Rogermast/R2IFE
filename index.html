@@ -270,7 +270,6 @@
     <h3>Traducción:</h3>
     <div id="output">
       <span style="color: var(--sub);">La traducción aparecerá aquí...</span>
-      <button class="copy-btn hidden" id="copyBtn">Copiar</button>
     </div>
   </div>
 
@@ -284,6 +283,7 @@
     let isProcessing = false;
     
     document.addEventListener('DOMContentLoaded', () => {
+      // Tab switching
       document.querySelectorAll('.tabs button').forEach(button => {
         button.addEventListener('click', () => {
           const mode = button.getAttribute('data-mode');
@@ -291,8 +291,19 @@
         });
       });
       
+      // Language swap
       document.getElementById('swapBtn').addEventListener('click', swapLanguages);
-      document.getElementById('copyBtn').addEventListener('click', copyTranslation);
+      
+      // *** SOLUCIÓN CLAVE: DELEGACIÓN DE EVENTOS PARA EL BOTÓN COPIAR ***
+      // Ponemos un solo escuchador en el contenedor #output que nunca se destruye.
+      document.getElementById('output').addEventListener('click', (event) => {
+        // Si el elemento clicado es el botón de copiar...
+        if (event.target.id === 'copyBtn') {
+          copyTranslation();
+        }
+      });
+      
+      // Image button
       document.getElementById('imageBtn').addEventListener('click', () => {
         document.getElementById('fileInput').click();
       });
@@ -340,7 +351,7 @@
       const outputText = document.getElementById('output').textContent.replace('Copiar', '').trim();
       
       setInputText(outputText);
-      document.getElementById('output').innerHTML = `<span style="color: var(--sub);">La traducción aparecerá aquí...</span><button class="copy-btn hidden" id="copyBtn">Copiar</button>`;
+      document.getElementById('output').innerHTML = `<span style="color: var(--sub);">La traducción aparecerá aquí...</span>`;
     }
     
     function showNotification(message, type = 'info') {
@@ -386,8 +397,6 @@
         const sourceLang = document.getElementById('sourceLang').value;
         const targetLang = document.getElementById('targetLang').value;
         
-        // *** SOLUCIÓN CLAVE: USAR UN PROXY CORS ***
-        // Esto evita errores de red y de política CORS del navegador.
         const proxyUrl = 'https://corsproxy.io/?';
         const targetUrl = 'https://libretranslate.org/translate';
         const url = proxyUrl + encodeURIComponent(targetUrl);
@@ -408,9 +417,8 @@
         const data = await res.json();
         
         const outputElement = document.getElementById('output');
+        // El botón "Copiar" se crea aquí, pero no necesita un nuevo listener gracias a la delegación.
         outputElement.innerHTML = `${data.translatedText}<button class="copy-btn" id="copyBtn">Copiar</button>`;
-        
-        document.getElementById('copyBtn').addEventListener('click', copyTranslation);
         
         showNotification('Traducción completada', 'success');
       } catch (error) {
@@ -506,7 +514,8 @@
         setInputText(recognizedText);
         showNotification('Texto reconocido correctamente', 'success');
         
-        translateText();
+        // Añadimos await para esperar a que la traducción termine
+        await translateText();
       } catch (error) {
         console.error('OCR error:', error);
         showNotification('Error al procesar la imagen', 'error');
@@ -518,8 +527,11 @@
     }
     
     function copyTranslation() {
-      const text = document.getElementById('output').textContent.replace('Copiar', '').trim();
-      navigator.clipboard.writeText(text)
+      // Obtenemos el texto del div, pero excluimos el texto del propio botón "Copiar"
+      const outputElement = document.getElementById('output');
+      const textToCopy = outputElement.childNodes[0].textContent.trim();
+      
+      navigator.clipboard.writeText(textToCopy)
         .then(() => showNotification('Texto copiado al portapapeles', 'success'))
         .catch(() => showNotification('Error al copiar el texto', 'error'));
     }
